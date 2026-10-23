@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "helialab",
+  "description": "Plugins de Helialab para trabajar con Claude Code.",
+  "owner": { "name": "Helialab", "url": "https://github.com/Helialab" },
+  "plugins": [
+    {
+      "name": "helialab",
+      "description": "Onboarding y mantenimiento del entorno Helialab: /helialab:instalar, /helialab:doctor y /helialab:actualizar.",
+      "category": "productivity",
+      "version": "0.1.0",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/Helialab/inicio.git",
+        "path": "plugins/helialab",
+        "ref": "helialab--v0.1.0",
+        "sha": "06e7e7c60c37764cace5b28b367cea77d97a395c"
+      }
+    }
+  ]
+}
