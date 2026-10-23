@@ -1,0 +1,38 @@
+# Repo público: nada sensible puede entrar. Revisa secretos, direcciones internas y la coherencia del marketplace.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Sin secretos ni direcciones internas
+        run: |
+          patrones='BEGIN [A-Z ]*PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|xox[baprs]-|ol_api_[A-Za-z0-9]{10,}|age1[0-9a-z]{50,}|10\.77\.|AGE-SECRET-KEY'
+          if git grep -nIE "$patrones" -- . ':!.github/workflows/ci.yml'; then
+            echo "::error::Posible secreto o dirección interna en un repo público"; exit 1
+          fi
+      - name: Scripts con sintaxis válida
+        run: for f in plugins/helialab/scripts/*.sh; do bash -n "$f"; done
+      - name: El marketplace apunta a una etiqueta y a su commit
+        run: |
+          node -e '
+            const m = require("./.claude-plugin/marketplace.json");
+            const { execSync } = require("child_process");
+            for (const p of m.plugins) {
+              const s = p.source;
+              if (typeof s !== "object" || !s.ref || !s.sha) throw new Error(`${p.name}: source debe fijar ref y sha`);
+              const sha = execSync(`git rev-list -n 1 ${s.ref}`).toString().trim();
+              if (sha !== s.sha) throw new Error(`${p.name}: ${s.ref} es ${sha}, no ${s.sha}`);
+              console.log(`${p.name}: ${s.ref} = ${sha.slice(0, 12)} ok`);
+            }'

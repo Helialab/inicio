@@ -1,0 +1,8 @@
+{
+  "name": "helialab",
+  "version": "0.1.0",
+  "description": "Onboarding y mantenimiento del entorno de trabajo Helialab: /helialab:instalar, /helialab:doctor y /helialab:actualizar.",
+  "author": { "name": "Helialab", "url": "https://github.com/Helialab" },
+  "homepage": "https://github.com/Helialab/inicio",
+  "license": "MIT"
+}
