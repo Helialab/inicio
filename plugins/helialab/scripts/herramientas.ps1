@@ -1,4 +1,4 @@
-# Instala herramientas que faltan (Windows, con winget). Solo instala las pedidas; no actualiza las existentes.
+﻿# Instala herramientas que faltan (Windows, con winget). Solo instala las pedidas; no actualiza las existentes.
 # Uso: powershell -NoProfile -ExecutionPolicy Bypass -File herramientas.ps1 git gh node pnpm docker warp [python kicad]
 $ErrorActionPreference = "Continue"
 $ids = @{

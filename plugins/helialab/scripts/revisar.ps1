@@ -1,4 +1,4 @@
-# Revisa el equipo para trabajar en Helialab (Windows). Solo lee; no instala ni cambia nada.
+﻿# Revisa el equipo para trabajar en Helialab (Windows). Solo lee; no instala ni cambia nada.
 # Salida: JSON en una línea con herramientas, sesión de GitHub, equipos, VPN, Docker y espacio de trabajo.
 # Uso: powershell -NoProfile -ExecutionPolicy Bypass -File revisar.ps1 [-Espacio <carpeta>]
 param([string]$Espacio = (Join-Path $env:USERPROFILE "Helialab"))
@@ -22,7 +22,15 @@ if ($gh.instalado) {
   if ($LASTEXITCODE -eq 0) {
     $gh.usuario = "$u".Trim()
     $gh.org = ("" + (gh api user/memberships/orgs/Helialab --jq .state 2>$null)).Trim()
-    $gh.equipos = @(gh api user/teams --jq '.[] | select(.organization.login=="Helialab") | .slug' 2>$null | Where-Object { $_ })
+    # Windows PowerShell 5.1 se come las comillas dobles al pasar argumentos a gh.exe, así que un
+    # filtro --jq como select(.login=="Helialab") llega roto. Pedimos JSON crudo y filtramos acá.
+    # equipos queda en null si GitHub no respondió, y en [] si de verdad no hay ninguno.
+    $equiposJson = (gh api user/teams --paginate 2>$null | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0) { $gh.equipos = $null }
+    elseif ($equiposJson) {
+      try { $gh.equipos = @(($equiposJson | ConvertFrom-Json) | Where-Object { $_.organization.login -eq "Helialab" } | ForEach-Object { $_.slug }) }
+      catch { $gh.equipos = $null }
+    }
   }
 }
 
